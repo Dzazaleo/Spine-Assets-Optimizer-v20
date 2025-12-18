@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, AlertTriangle, Check, PackageOpen, Info, Scaling, Clock, Edit2, Ban, Bone } from 'lucide-react';
 import { AnalysisResult, FoundImageResult } from '../types';
@@ -84,7 +83,7 @@ export const AnimationCard: React.FC<AnimationCardProps> = ({
     const isSkinSearch = term.length >= 2 && 'skin'.startsWith(term);
 
     const match = (item: { path: string, bonePath: string, isLocalScaleOverridden?: boolean, showSkinLabel?: boolean, isOverridden?: boolean }) => {
-      const textMatch = item.path.toLowerCase().includes(term) || item.bonePath.toLowerCase().includes(term);
+      const textMatch = item.path?.toLowerCase().includes(term) || item.bonePath?.toLowerCase().includes(term);
       const overrideMatch = isOverrideSearch && (!!item.isLocalScaleOverridden || !!item.isOverridden);
       const skinMatch = isSkinSearch && !!item.showSkinLabel;
       return textMatch || overrideMatch || skinMatch;
@@ -129,7 +128,7 @@ export const AnimationCard: React.FC<AnimationCardProps> = ({
                   {result.skeletonName}
                 </span>
               )}
-              {searchTerm && result.animationName.toLowerCase().includes(searchTerm.toLowerCase()) && (
+              {searchTerm && result.animationName?.toLowerCase().includes(searchTerm.toLowerCase()) && (
                  <span className="px-1.5 py-0.5 text-[10px] font-medium text-gray-900 bg-spine-accent rounded">MATCH</span>
               )}
             </div>
@@ -170,23 +169,36 @@ export const AnimationCard: React.FC<AnimationCardProps> = ({
                     {searchTerm && <span className="text-[10px] opacity-70">Filtered</span>}
                   </h4>
                   <ul className="space-y-2">
-                    {filteredMissing.map((img, idx) => (
-                      <li key={`${img.path}-${idx}`} className="flex items-start gap-3 px-3 py-3 text-sm text-red-300 rounded bg-red-900/20 border border-red-900/30">
-                        <AlertTriangle size={18} className="shrink-0 text-red-400 mt-0.5" />
-                        <div className="flex-1 min-w-0 flex flex-col gap-1">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                             <span className="truncate font-medium text-base text-red-200" title={img.path}>{img.path}</span>
-                             <span className="shrink-0 text-[10px] font-bold bg-red-500/20 text-red-200 px-2 py-0.5 rounded border border-red-500/30 uppercase tracking-wide">
-                                Missing Texture File
-                             </span>
+                    {filteredMissing.map((img, idx) => {
+                      const isHighlighted = img.path === highlightedKey;
+                      return (
+                        <li 
+                          key={`${img.path}-${idx}`} 
+                          ref={(el) => {
+                            if (el) assetRefs.current.set(img.path, el);
+                            else assetRefs.current.delete(img.path);
+                          }}
+                          className={clsx(
+                            "flex items-start gap-3 px-3 py-3 text-sm rounded bg-red-900/20 border transition-all",
+                            isHighlighted ? "ring-2 ring-spine-accent z-10 border-spine-accent" : "border-red-900/30 text-red-300"
+                          )}
+                        >
+                          <AlertTriangle size={18} className="shrink-0 text-red-400 mt-0.5" />
+                          <div className="flex-1 min-w-0 flex flex-col gap-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                               <span className="truncate font-medium text-base text-red-200" title={img.path}>{img.path}</span>
+                               <span className="shrink-0 text-[10px] font-bold bg-red-500/20 text-red-200 px-2 py-0.5 rounded border border-red-500/30 uppercase tracking-wide">
+                                  Missing Texture File
+                               </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs font-mono text-red-200/50">
+                               <span className="shrink-0 text-red-200/30">Bone Path:</span>
+                               <span className="truncate">{img.bonePath}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-xs font-mono text-red-200/50">
-                             <span className="shrink-0 text-red-200/30">Bone Path:</span>
-                             <span className="truncate">{img.bonePath}</span>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

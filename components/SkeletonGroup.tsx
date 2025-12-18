@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Bone } from 'lucide-react';
 
@@ -8,7 +7,8 @@ interface SkeletonGroupProps {
   children: React.ReactNode;
   globalExpanded?: boolean;
   searchTerm?: string;
-  expandTrigger?: { animationName: string, skeletonName: string, ts: number } | null;
+  // Synced with App.tsx state definition
+  expandTrigger?: { name: string, skeletonName?: string, assetKey?: string, ts: number } | null;
 }
 
 export const SkeletonGroup: React.FC<SkeletonGroupProps> = ({ 

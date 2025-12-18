@@ -677,11 +677,11 @@ export default function App() {
     const isSkinSearch = term.length >= 2 && 'skin'.startsWith(term);
     
     return results.filter(result => {
-      if (result.animationName.toLowerCase().includes(term)) return true;
+      if (result.animationName?.toLowerCase().includes(term)) return true;
       if (result.skeletonName && result.skeletonName.toLowerCase().includes(term)) return true;
       
       const assetMatch = (img: any) => {
-        const textMatch = img.path.toLowerCase().includes(term) || img.bonePath.toLowerCase().includes(term);
+        const textMatch = img.path?.toLowerCase().includes(term) || img.bonePath?.toLowerCase().includes(term);
         const overrideMatch = isOverrideSearch && (!!img.isLocalScaleOverridden || !!img.isOverridden);
         const skinMatch = isSkinSearch && !!img.showSkinLabel;
         return textMatch || overrideMatch || skinMatch;
@@ -717,7 +717,7 @@ export default function App() {
       const isSkinSearch = term.length >= 2 && 'skin'.startsWith(term);
       
       stats = stats.filter(stat => {
-        const textMatch = stat.path.toLowerCase().includes(term) || stat.sourceAnimation.toLowerCase().includes(term);
+        const textMatch = stat.path?.toLowerCase().includes(term) || stat.sourceAnimation?.toLowerCase().includes(term);
         const skeletonMatch = stat.sourceSkeleton ? stat.sourceSkeleton.toLowerCase().includes(term) : false;
         const overrideMatch = isOverrideSearch && stat.isOverridden;
         const skinMatch = isSkinSearch && (!!stat.skinName && stat.skinName !== 'default');
@@ -730,10 +730,10 @@ export default function App() {
       let res = 0;
       switch (sortConfig.key) {
           case 'path':
-              res = a.path.localeCompare(b.path);
+              res = (a.path || '').localeCompare(b.path || '');
               break;
           case 'sourceAnimation':
-              res = a.sourceAnimation.localeCompare(b.sourceAnimation);
+              res = (a.sourceAnimation || '').localeCompare(b.sourceAnimation || '');
               break;
           case 'sourceSkeleton':
               res = (a.sourceSkeleton || '').localeCompare(b.sourceSkeleton || '');
@@ -764,12 +764,12 @@ export default function App() {
     // 2. Matches in Animations
     report.animations.forEach(anim => {
       const assetMatch = (img: any) => {
-        const textMatch = img.path.toLowerCase().includes(term) || img.bonePath.toLowerCase().includes(term);
+        const textMatch = img.path?.toLowerCase().includes(term) || img.bonePath?.toLowerCase().includes(term);
         return textMatch;
       };
 
       // Check if animation name matches
-      const animNameMatch = anim.animationName.toLowerCase().includes(term);
+      const animNameMatch = anim.animationName?.toLowerCase().includes(term);
       
       // If anim matches, we could add it, but requirement says cycle assets.
       // We add each matching asset found in this animation.
@@ -777,7 +777,8 @@ export default function App() {
         matches.push({ type: 'anim', key: img.lookupKey, animName: anim.animationName, skeletonName: anim.skeletonName });
       });
       anim.missingImages.filter(assetMatch).forEach(img => {
-        matches.push({ type: 'anim', key: img.lookupKey, animName: anim.animationName, skeletonName: anim.skeletonName });
+        // Corrected: use img.path as key for missing images as they lack lookupKey
+        matches.push({ type: 'anim', key: img.path, animName: anim.animationName, skeletonName: anim.skeletonName });
       });
     });
 
